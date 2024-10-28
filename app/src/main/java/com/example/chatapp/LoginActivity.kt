@@ -38,15 +38,20 @@ class LoginActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             val authResponse = response.body()
 
-                            // Извлекаем AccessToken и сохраняем его
                             val accessToken = authResponse?.token?.accessToken
-                            if (accessToken != null) {
-                                preferenceManager.saveToken(accessToken)
+                            val refreshToken = authResponse?.token?.refreshToken
+                            val userId = authResponse?.userId
+
+                            if (accessToken != null && refreshToken != null && userId != null) {
+                                preferenceManager.saveAccessToken(accessToken)
+                                preferenceManager.saveRefreshToken(refreshToken)
+                                preferenceManager.saveUserId(userId)
+
                                 Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                                 finish()
                             } else {
-                                Toast.makeText(this@LoginActivity, "Access token is missing in response", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@LoginActivity, "Required data is missing in response", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             Toast.makeText(this@LoginActivity, "Login failed!", Toast.LENGTH_SHORT).show()

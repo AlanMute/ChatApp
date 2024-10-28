@@ -11,9 +11,9 @@ class SplashActivity : AppCompatActivity() {
 
         // Инициализируем PreferenceManager для проверки токена
         val preferenceManager = PreferenceManager(this)
-        val token = preferenceManager.getToken()
+        val accessToken = preferenceManager.getAccessToken() // Изменили getToken на getAccessToken
 
-        if (token != null) {
+        if (accessToken != null) {
             // Если токен существует, переходим на главный экран
             startActivity(Intent(this, MainActivity::class.java))
         } else {
