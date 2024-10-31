@@ -32,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
             val password = editTextPassword.text.toString()
 
             if (login.isNotEmpty() && password.isNotEmpty()) {
-                val user = User(login, password)
+                val user = User(login, password, "")
                 RetrofitClient.getInstance(this).signIn(user).enqueue(object : Callback<AuthResponse> {
                     override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                         if (response.isSuccessful) {
@@ -65,6 +65,12 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please enter login and password", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        val buttonGoToRegister = findViewById<Button>(R.id.buttonGoToRegister)
+        buttonGoToRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+            finish()
         }
     }
 }
