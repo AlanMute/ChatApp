@@ -9,17 +9,16 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Инициализируем PreferenceManager для проверки токена
         val preferenceManager = PreferenceManager(this)
-        val accessToken = preferenceManager.getAccessToken() // Изменили getToken на getAccessToken
+        val accessToken = preferenceManager.getAccessToken()
 
         if (accessToken != null) {
-            // Если токен существует, переходим на главный экран
+            // Токен существует, пользователь авторизован, переходим на главный экран
             startActivity(Intent(this, MainActivity::class.java))
         } else {
-            // Если токена нет, переходим на экран входа
+            // Токена нет, перенаправляем на экран входа
             startActivity(Intent(this, LoginActivity::class.java))
         }
-        finish() // Завершаем SplashActivity
+        finish()
     }
 }

@@ -1,6 +1,8 @@
 package com.example.chatapp.network
 
 import android.content.Context
+import android.content.Intent
+import com.example.chatapp.LoginActivity
 import com.example.chatapp.PreferenceManager
 import com.example.chatapp.models.RefreshRequest
 import okhttp3.Interceptor
@@ -34,6 +36,7 @@ object RetrofitClient {
 
                 // Если токен просрочен, пробуем обновить его
                 if (response.code() == 401) {
+                    response.close() // Закрываем предыдущий ответ перед повторным запросом
                     val newAccessToken = refreshAccessToken(context, preferenceManager)
                     if (newAccessToken != null) {
                         // Повторяем запрос с новым токеном
@@ -41,6 +44,13 @@ object RetrofitClient {
                             .header("Authorization", "Bearer $newAccessToken")
                             .build()
                         return@addInterceptor chain.proceed(newRequest)
+                    } else {
+                        // Если не удалось обновить токен, очищаем данные и переходим на экран входа
+                        preferenceManager.clearData() // Очищаем сохраненные токены
+                        val intent = Intent(context, LoginActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
                     }
                 }
 

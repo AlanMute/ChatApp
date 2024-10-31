@@ -1,10 +1,12 @@
 package com.example.chatapp.network
 
 import com.example.chatapp.models.AuthResponse
+import com.example.chatapp.models.Chat
 import com.example.chatapp.models.RefreshRequest
 import com.example.chatapp.models.User
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
@@ -16,4 +18,7 @@ interface ApiService {
 
     @POST("/api/v1/user/refresh/0")
     fun refreshToken(@Body refreshRequest: RefreshRequest): Call<String>
+
+    @GET("/api/v1/chat/all")
+    fun getChats(): Call<List<Chat>>
 }
