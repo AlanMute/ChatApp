@@ -1,47 +1,87 @@
 package com.example.chatapp
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.chatapp.ui.theme.ChatAppTheme
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.chatapp.adapters.ChatListAdapter
+import com.example.chatapp.models.Chat
+import com.example.chatapp.network.RetrofitClient
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var chatListAdapter: ChatListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ChatAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+        setContentView(R.layout.activity_main)
+
+        // Устанавливаем Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Обработчик нажатия на FloatingActionButton
+        val fabAddChat = findViewById<FloatingActionButton>(R.id.fabAddChat)
+        fabAddChat.setOnClickListener {
+            // Открываем экран создания чата
+            startActivity(Intent(this, AddChatActivity::class.java))
+        }
+
+        // Настраиваем RecyclerView для отображения списка чатов
+        recyclerView = findViewById(R.id.recyclerViewChats)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        chatListAdapter = ChatListAdapter(listOf())
+        recyclerView.adapter = chatListAdapter
+
+        loadChats() // Загружаем список чатов
+    }
+
+    private fun loadChats() {
+        val apiService = RetrofitClient.getInstance(this)
+        apiService.getChats().enqueue(object : Callback<List<Chat>> {
+            override fun onResponse(call: Call<List<Chat>>, response: Response<List<Chat>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    chatListAdapter.updateChats(response.body()!!)
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to load chats", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
+
+            override fun onFailure(call: Call<List<Chat>>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ChatAppTheme {
-        Greeting("Android")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_profile -> {
+                // Открываем профиль пользователя
+                startActivity(Intent(this, ProfileActivity::class.java))
+                true
+            }
+            R.id.action_settings -> {
+                // Открываем настройки приложения
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
