@@ -80,7 +80,6 @@ class ChatActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     response.body()?.let { messages ->
                         messageAdapter.submitList(messages)
-                        // Прокручиваем RecyclerView к последнему сообщению
                         val recyclerViewMessages = findViewById<RecyclerView>(R.id.recyclerViewMessages)
                         recyclerViewMessages.scrollToPosition(messages.size - 1)
                     }
@@ -99,6 +98,7 @@ class ChatActivity : AppCompatActivity() {
         webSocketClient = ChatWebSocketClient(this, chatId) { message ->
             runOnUiThread {
                 messageAdapter.addMessage(message)
+                scrollToBottom()
             }
         }
         webSocketClient.connect()
@@ -106,10 +106,16 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage(text: String) {
         webSocketClient.sendMessage(text)
+        scrollToBottom()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         webSocketClient.close()
+    }
+
+    private fun scrollToBottom() {
+        val recyclerViewMessages = findViewById<RecyclerView>(R.id.recyclerViewMessages)
+        recyclerViewMessages.scrollToPosition(messageAdapter.itemCount - 1)
     }
 }

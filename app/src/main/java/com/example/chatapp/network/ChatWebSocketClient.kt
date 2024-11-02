@@ -75,6 +75,16 @@ class ChatWebSocketClient(
 
     private fun parseIncomingMessage(text: String): MessageInfo {
         val jsonObject = JSONObject(text)
+
+        val msg = MessageInfo(
+                id = jsonObject.getInt("id"),
+        chatId = jsonObject.getInt("chatId"),
+        senderId = jsonObject.getInt("senderId"),
+        userName = jsonObject.getString("userName"),
+        sendingTime = jsonObject.getString("sendingTime"),
+        text = jsonObject.getString("text")
+        )
+
         return MessageInfo(
             id = jsonObject.getInt("id"),
             chatId = jsonObject.getInt("chatId"),
