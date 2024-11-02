@@ -29,6 +29,8 @@
             tools:ignore="Instantiatable" />
         <activity android:name=".SettingsActivity"
             tools:ignore="Instantiatable" />
+        <activity android:name=".ChatActivity"
+            tools:ignore="Instantiatable" />
     </application>
 
 </manifest>

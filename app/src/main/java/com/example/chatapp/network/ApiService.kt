@@ -1,7 +1,10 @@
 package com.example.chatapp.network
 
+import com.example.chatapp.models.AddChat
+import com.example.chatapp.models.AddContact
 import com.example.chatapp.models.AuthResponse
 import com.example.chatapp.models.Chat
+import com.example.chatapp.models.Contact
 import com.example.chatapp.models.MessageInfo
 import com.example.chatapp.models.RefreshRequest
 import com.example.chatapp.models.User
@@ -29,9 +32,22 @@ interface ApiService {
     @GET("/api/v1/chat/members/{id}")
     fun getChatMembers(@Path("id") chatId: Int): Call<List<UserInfo>>
 
+    @POST("/api/v1/chat")
+    fun createChat(@Body addChat: AddChat): Call<Void>
+
+    @GET("/api/v1/contact/all")
+    fun getContacts(): Call<List<Contact>>
+
+    // Добавление нового контакта
+    @POST("/api/v1/contact")
+    fun addContact(@Body contact: AddContact): Call<Void>
+
+    @GET("/api/v1/chat/{id}")
+    fun getChatInfo(@Path("id") chatId: Int): Call<Chat>
+
     @GET("/api/v1/chat/messages")
-    fun getMessages(
+    fun getChatMessages(
         @Query("chat-id") chatId: Int,
-        @Query("page-id") pageId: Int
+        @Query("page-id") pageId: Int = 0 // по умолчанию первая страница
     ): Call<List<MessageInfo>>
 }

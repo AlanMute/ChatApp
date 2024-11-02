@@ -17,7 +17,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ChatListAdapter.OnChatClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatListAdapter: ChatListAdapter
@@ -26,25 +26,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Устанавливаем Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        // Обработчик нажатия на FloatingActionButton
         val fabAddChat = findViewById<FloatingActionButton>(R.id.fabAddChat)
         fabAddChat.setOnClickListener {
-            // Открываем экран создания чата
             startActivity(Intent(this, AddChatActivity::class.java))
         }
 
-        // Настраиваем RecyclerView для отображения списка чатов
         recyclerView = findViewById(R.id.recyclerViewChats)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        chatListAdapter = ChatListAdapter(listOf())
+        chatListAdapter = ChatListAdapter(listOf(), this) // Передаем `this` как слушатель
         recyclerView.adapter = chatListAdapter
 
-        loadChats() // Загружаем список чатов
+        loadChats()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadChats()
     }
 
     private fun loadChats() {
@@ -64,24 +65,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_profile -> {
-                // Открываем профиль пользователя
-                startActivity(Intent(this, ProfileActivity::class.java))
-                true
-            }
-            R.id.action_settings -> {
-                // Открываем настройки приложения
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+    override fun onChatClick(chatId: Int) {
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.putExtra("CHAT_ID", chatId)
+        startActivity(intent)
     }
 }

@@ -1,11 +1,14 @@
 package com.example.chatapp.network
 
+import LoggingInterceptor
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.example.chatapp.LoginActivity
 import com.example.chatapp.PreferenceManager
 import com.example.chatapp.models.RefreshRequest
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -16,7 +19,10 @@ object RetrofitClient {
     private fun createOkHttpClient(context: Context): OkHttpClient {
         val preferenceManager = PreferenceManager(context)
 
+        val loggingInterceptor = LoggingInterceptor()
+
         return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .addInterceptor { chain ->
                 var request = chain.request()
                 val accessToken = preferenceManager.getAccessToken()
@@ -27,12 +33,13 @@ object RetrofitClient {
                         .addHeader("Authorization", "Bearer $accessToken")
                         .build()
                 }
+                Log.i("CustomLog", "Loaded Access Token: $accessToken")
 
                 // Выполняем запрос
                 val response = chain.proceed(request)
 
                 // Если токен просрочен, пробуем обновить его
-                if (response.code() == 401) {
+                if (response.code == 500) {
                     response.close() // Закрываем предыдущий ответ перед повторным запросом
                     val newAccessToken = refreshAccessToken(context, preferenceManager)
                     if (newAccessToken != null) {
@@ -57,7 +64,7 @@ object RetrofitClient {
     }
 
     // Метод для обновления токена
-    private fun refreshAccessToken(context: Context, preferenceManager: PreferenceManager): String? {
+    internal fun refreshAccessToken(context: Context, preferenceManager: PreferenceManager): String? {
         val refreshToken = preferenceManager.getRefreshToken() ?: return null
         val userId = preferenceManager.getUserId()
 

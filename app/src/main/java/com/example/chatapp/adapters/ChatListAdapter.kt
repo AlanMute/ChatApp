@@ -1,15 +1,22 @@
 package com.example.chatapp.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatapp.MainActivity
 import com.example.chatapp.R
 import com.example.chatapp.models.Chat
+class ChatListAdapter(
+    private var chats: List<Chat>,
+    private val onChatClickListener: MainActivity
+) : RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {
 
-class ChatListAdapter(private var chats: List<Chat>) :
-    RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {
+    interface OnChatClickListener {
+        fun onChatClick(chatId: Int)
+    }
 
     fun updateChats(newChats: List<Chat>) {
         chats = newChats
@@ -24,6 +31,10 @@ class ChatListAdapter(private var chats: List<Chat>) :
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
         holder.bind(chat)
+        Log.i("as", "ASASQWQW $chat")
+        holder.itemView.setOnClickListener {
+            onChatClickListener.onChatClick(chat.id)
+        }
     }
 
     override fun getItemCount(): Int {

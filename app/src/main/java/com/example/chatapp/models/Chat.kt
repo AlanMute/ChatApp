@@ -1,8 +1,10 @@
 package com.example.chatapp.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Chat(
-    val id: Int,
-    val isDirect: Boolean,
-    val name: String,
-    val ownerId: Int
+    @SerializedName("id") val id: Int,
+    @SerializedName("IsDirect") val isDirect: Boolean,
+    @SerializedName("Name") val name: String,
+    @SerializedName("OwnerId") val ownerId: Int
 )
