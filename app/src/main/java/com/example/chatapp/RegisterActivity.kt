@@ -20,17 +20,15 @@ class RegisterActivity : AppCompatActivity() {
 
         val editTextLogin = findViewById<EditText>(R.id.editTextLogin)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
-        val editTextUserName = findViewById<EditText>(R.id.editTextUserName)
         val buttonRegister = findViewById<Button>(R.id.buttonRegister)
         val buttonGoToLogin = findViewById<Button>(R.id.buttonGoToLogin)
 
         buttonRegister.setOnClickListener {
             val login = editTextLogin.text.toString()
             val password = editTextPassword.text.toString()
-            val userName = editTextUserName.text.toString()
 
-            if (login.isNotEmpty() && password.isNotEmpty() && userName.isNotEmpty()) {
-                val newUser = User(login, password, userName)
+            if (login.isNotEmpty() && password.isNotEmpty()) {
+                val newUser = User(login, password, "")
                 registerUser(newUser)
             } else {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()

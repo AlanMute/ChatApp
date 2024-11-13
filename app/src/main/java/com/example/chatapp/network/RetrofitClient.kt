@@ -39,7 +39,7 @@ object RetrofitClient {
                 val response = chain.proceed(request)
 
                 // Если токен просрочен, пробуем обновить его
-                if (response.code == 500) {
+                if (response.code == 401) {
                     response.close() // Закрываем предыдущий ответ перед повторным запросом
                     val newAccessToken = refreshAccessToken(context, preferenceManager)
                     if (newAccessToken != null) {
@@ -75,8 +75,9 @@ object RetrofitClient {
             .create(ApiService::class.java)
 
         val refreshResponse = refreshService.refreshToken(RefreshRequest(userId, refreshToken)).execute()
+
         return if (refreshResponse.isSuccessful) {
-            val newAccessToken = refreshResponse.body()
+            val newAccessToken = refreshResponse.body()?.accessTocken
             if (newAccessToken != null) {
                 preferenceManager.saveAccessToken(newAccessToken)
             }

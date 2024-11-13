@@ -1,5 +1,6 @@
 package com.example.chatapp.network
 
+import com.example.chatapp.models.AccessTocken
 import com.example.chatapp.models.AddChat
 import com.example.chatapp.models.AddContact
 import com.example.chatapp.models.AuthResponse
@@ -23,8 +24,8 @@ interface ApiService {
     @POST("/api/v1/user/sign-up")
     fun signUp(@Body user: User): Call<Void>
 
-    @POST("/api/v1/user/refresh/0")
-    fun refreshToken(@Body refreshRequest: RefreshRequest): Call<String>
+    @POST("/api/v1/user/refresh")
+    fun refreshToken(@Body refreshRequest: RefreshRequest): Call<AccessTocken>
 
     @GET("/api/v1/chat/all")
     fun getChats(): Call<List<Chat>>
