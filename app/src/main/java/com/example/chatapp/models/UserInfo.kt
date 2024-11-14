@@ -1,7 +1,9 @@
 package com.example.chatapp.models
 
+import com.google.gson.annotations.SerializedName
+
 data class UserInfo(
-    val id: Int,
-    val login: String,
-    val userName: String
+    @SerializedName("ID")  val id: Int,
+    @SerializedName("Login")   val login: String,
+    @SerializedName("UserName")  val userName: String
 )

@@ -3,6 +3,7 @@ package com.example.chatapp.network
 import com.example.chatapp.models.AccessTocken
 import com.example.chatapp.models.AddChat
 import com.example.chatapp.models.AddContact
+import com.example.chatapp.models.AddMemberRequest
 import com.example.chatapp.models.AuthResponse
 import com.example.chatapp.models.Chat
 import com.example.chatapp.models.Contact
@@ -12,6 +13,7 @@ import com.example.chatapp.models.User
 import com.example.chatapp.models.UserInfo
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -51,4 +53,10 @@ interface ApiService {
         @Query("chat-id") chatId: Int,
         @Query("page-id") pageId: Int = 0 // по умолчанию первая страница
     ): Call<List<MessageInfo>>
+
+    @POST("/api/v1/chat/add/members")
+    fun addMembers(@Body addMemberRequest: AddMemberRequest): Call<Void>
+
+    @DELETE("/api/v1/chat/{id}")
+    fun deleteChat(@Path("id") chatId: Int): Call<Void>
 }
