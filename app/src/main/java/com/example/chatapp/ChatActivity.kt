@@ -7,16 +7,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatapp.adapters.MembersAdapter
 import com.example.chatapp.adapters.MessageAdapter
 import com.example.chatapp.models.AddContact
 import com.example.chatapp.models.AddMemberRequest
 import com.example.chatapp.models.Chat
 import com.example.chatapp.models.Contact
+import com.example.chatapp.models.ContactInfo
 import com.example.chatapp.models.MessageInfo
 import com.example.chatapp.models.UserInfo
 import com.example.chatapp.network.ChatWebSocketClient
@@ -29,6 +32,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var preferenceManager: PreferenceManager
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var webSocketClient: ChatWebSocketClient
+    private var chatInfo: Chat? = null
+    private var ownerInfo: Contact? = null
+    private val chatMembers = mutableListOf<UserInfo>()
     private val selectedContacts = mutableSetOf<Int>()
     private var chatId: Int = -1
     private var isOwner: Boolean = false
@@ -55,6 +61,7 @@ class ChatActivity : AppCompatActivity() {
         recyclerViewMessages.adapter = messageAdapter
 
         loadChatInfo()
+        loadChatMembers()
         loadChatMessages()
 
         setupWebSocket()
@@ -74,11 +81,13 @@ class ChatActivity : AppCompatActivity() {
         RetrofitClient.getInstance(this).getChatInfo(chatId).enqueue(object : Callback<Chat> {
             override fun onResponse(call: Call<Chat>, response: Response<Chat>) {
                 if (response.isSuccessful && response.body() != null) {
-                    val chatInfo = response.body()!!
-                    supportActionBar?.title = chatInfo.name
-                    // Проверяем, является ли текущий пользователь владельцем
-                    isOwner = chatInfo.ownerId.toLong() == preferenceManager.getUserId()
-                    invalidateOptionsMenu() // Обновляем меню, чтобы показать/скрыть настройки
+                    chatInfo = response.body() // Сохраняем данные о чате
+                    Log.i("chatInfo", "$chatInfo")
+                    supportActionBar?.title = chatInfo?.name
+                    isOwner = chatInfo?.ownerId?.toLong() == preferenceManager.getUserId()
+                    invalidateOptionsMenu()
+
+                    loadOwnerInfo(chatInfo?.ownerId ?: -1)
                 } else {
                     Toast.makeText(this@ChatActivity, "Ошибка загрузки чата", Toast.LENGTH_SHORT).show()
                 }
@@ -86,6 +95,23 @@ class ChatActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<Chat>, t: Throwable) {
                 Toast.makeText(this@ChatActivity, "Ошибка: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun loadChatMembers() {
+        RetrofitClient.getInstance(this).getChatMembers(chatId).enqueue(object : Callback<List<UserInfo>> {
+            override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    chatMembers.clear()
+                    chatMembers.addAll(response.body()!!)
+                } else {
+                    Toast.makeText(this@ChatActivity, "Ошибка загрузки участников", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
+                Toast.makeText(this@ChatActivity, "Ошибка загрузки участников", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -110,7 +136,24 @@ class ChatActivity : AppCompatActivity() {
         })
     }
 
+    private fun loadOwnerInfo(ownerId: Int) {
+        Log.i("OwnerId", "$ownerId")
+        RetrofitClient.getInstance(this).getContact(ownerId).enqueue(object : Callback<Contact> {
+            override fun onResponse(call: Call<Contact>, response: Response<Contact>) {
+                if (response.isSuccessful && response.body() != null) {
+                    ownerInfo = response.body() // Сохраняем данные о владельце
+                    Log.i("ownerInfo", "$response.body()")
+                }
+            }
+
+            override fun onFailure(call: Call<Contact>, t: Throwable) {
+                Toast.makeText(this@ChatActivity, "Ошибка: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     private fun setupWebSocket() {
+
         webSocketClient = ChatWebSocketClient(this, chatId) { message ->
             runOnUiThread {
                 messageAdapter.addMessage(message)
@@ -150,6 +193,10 @@ class ChatActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> {
                 showChatSettingsDialog()
+                true
+            }
+            R.id.info -> {
+                showChatInfoDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -194,12 +241,42 @@ class ChatActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun showChatInfoDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_chat_info, null)
+        val chatTitleTextView = dialogView.findViewById<TextView>(R.id.textViewChatTitle)
+        val creatorInfoTextView = dialogView.findViewById<TextView>(R.id.textViewCreatorInfo)
+        val recyclerViewMembers = dialogView.findViewById<RecyclerView>(R.id.recyclerViewMembers)
+
+        recyclerViewMembers.layoutManager = LinearLayoutManager(this)
+        val membersAdapter = MembersAdapter()
+        recyclerViewMembers.adapter = membersAdapter
+
+        // Устанавливаем заголовок чата
+        chatInfo?.let { chat ->
+            chatTitleTextView.text = chat.name
+        }
+
+        // Устанавливаем информацию о владельце
+        ownerInfo?.let { owner ->
+            creatorInfoTextView.text = "Создатель: ${owner.login}${if (!owner.userName.isNullOrEmpty()) " - ${owner.userName}" else ""}"
+        }
+
+        // Устанавливаем список участников
+        membersAdapter.submitList(chatMembers)
+
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Информация о чате")
+            .setNegativeButton("Закрыть", null)
+            .show()
+    }
+
+
     private fun loadNonMembers(contactAdapter: ContactAdapter) {
         RetrofitClient.getInstance(this).getChatMembers(chatId).enqueue(object : Callback<List<UserInfo>> {
             override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val members = response.body()!!.map { it.id }.toSet()
-                    Log.i("ASASASASASA", "$members")
                     RetrofitClient.getInstance(this@ChatActivity).getContacts().enqueue(object : Callback<List<Contact>> {
                         override fun onResponse(call: Call<List<Contact>>, response: Response<List<Contact>>) {
                             if (response.isSuccessful && response.body() != null) {
@@ -226,6 +303,7 @@ class ChatActivity : AppCompatActivity() {
         RetrofitClient.getInstance(this).addMembers(addMemberRequest).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
+                    loadChatMembers()
                     Toast.makeText(this@ChatActivity, "Участники добавлены", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@ChatActivity, "Ошибка добавления участников", Toast.LENGTH_SHORT).show()

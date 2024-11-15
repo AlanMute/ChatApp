@@ -5,4 +5,10 @@
         android:title="Настройки"
         android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/info"
+        android:title="Инфо"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="ifRoom" />
 </menu>

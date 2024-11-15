@@ -7,6 +7,7 @@ import com.example.chatapp.models.AddMemberRequest
 import com.example.chatapp.models.AuthResponse
 import com.example.chatapp.models.Chat
 import com.example.chatapp.models.Contact
+import com.example.chatapp.models.ContactInfo
 import com.example.chatapp.models.MessageInfo
 import com.example.chatapp.models.RefreshRequest
 import com.example.chatapp.models.User
@@ -45,13 +46,16 @@ interface ApiService {
     @POST("/api/v1/contact")
     fun addContact(@Body contact: AddContact): Call<Void>
 
+    @GET("/api/v1/contact/{id}")
+    fun getContact(@Path("id") contactId: Int): Call<Contact>
+
     @GET("/api/v1/chat/{id}")
     fun getChatInfo(@Path("id") chatId: Int): Call<Chat>
 
     @GET("/api/v1/chat/messages")
     fun getChatMessages(
         @Query("chat-id") chatId: Int,
-        @Query("page-id") pageId: Int = 0 // по умолчанию первая страница
+        @Query("page-id") pageId: Int = 0
     ): Call<List<MessageInfo>>
 
     @POST("/api/v1/chat/add/members")
