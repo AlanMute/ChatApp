@@ -19,7 +19,6 @@ import com.example.chatapp.models.AddContact
 import com.example.chatapp.models.AddMemberRequest
 import com.example.chatapp.models.Chat
 import com.example.chatapp.models.Contact
-import com.example.chatapp.models.ContactInfo
 import com.example.chatapp.models.MessageInfo
 import com.example.chatapp.models.UserInfo
 import com.example.chatapp.network.ChatWebSocketClient
@@ -42,6 +41,10 @@ class ChatActivity : AppCompatActivity() {
     private var chatId: Int = -1
     private var isOwner: Boolean = false
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preferenceManager = PreferenceManager(this)
@@ -57,6 +60,7 @@ class ChatActivity : AppCompatActivity() {
 
         val toolbar = findViewById<Toolbar>(R.id.chatToolbar)
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val recyclerViewMessages = findViewById<RecyclerView>(R.id.recyclerViewMessages)
         recyclerViewMessages.layoutManager = LinearLayoutManager(this)
@@ -98,7 +102,7 @@ class ChatActivity : AppCompatActivity() {
         RetrofitClient.getInstance(this).getChatInfo(chatId).enqueue(object : Callback<Chat> {
             override fun onResponse(call: Call<Chat>, response: Response<Chat>) {
                 if (response.isSuccessful && response.body() != null) {
-                    chatInfo = response.body() // Сохраняем данные о чате
+                    chatInfo = response.body()
                     Log.i("chatInfo", "$chatInfo")
                     supportActionBar?.title = chatInfo?.name
                     isOwner = chatInfo?.ownerId?.toLong() == preferenceManager.getUserId()

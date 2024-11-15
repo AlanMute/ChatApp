@@ -7,9 +7,9 @@ import com.example.chatapp.models.AddMemberRequest
 import com.example.chatapp.models.AuthResponse
 import com.example.chatapp.models.Chat
 import com.example.chatapp.models.Contact
-import com.example.chatapp.models.ContactInfo
 import com.example.chatapp.models.MessageInfo
 import com.example.chatapp.models.RefreshRequest
+import com.example.chatapp.models.SetUsernameRequest
 import com.example.chatapp.models.User
 import com.example.chatapp.models.UserInfo
 import retrofit2.Call
@@ -42,7 +42,6 @@ interface ApiService {
     @GET("/api/v1/contact/all")
     fun getContacts(): Call<List<Contact>>
 
-    // Добавление нового контакта
     @POST("/api/v1/contact")
     fun addContact(@Body contact: AddContact): Call<Void>
 
@@ -63,4 +62,7 @@ interface ApiService {
 
     @DELETE("/api/v1/chat/{id}")
     fun deleteChat(@Path("id") chatId: Int): Call<Void>
+
+    @POST("/api/v1/user/set/username")
+    fun setUsername(@Body setUsernameRequest: SetUsernameRequest): Call<Void>
 }

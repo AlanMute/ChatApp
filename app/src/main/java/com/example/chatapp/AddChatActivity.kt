@@ -2,6 +2,7 @@ package com.example.chatapp
 
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.widget.Toolbar
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -25,6 +26,13 @@ class AddChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_chat)
+
+        // Настройка Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        supportActionBar?.title = "Создать чат"
 
         val editTextChatName = findViewById<EditText>(R.id.editTextChatName)
         val buttonCreateChat = findViewById<Button>(R.id.buttonCreateChat)
@@ -51,6 +59,11 @@ class AddChatActivity : AppCompatActivity() {
         buttonAddContact.setOnClickListener {
             showAddContactDialog()
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
     private fun loadContacts() {

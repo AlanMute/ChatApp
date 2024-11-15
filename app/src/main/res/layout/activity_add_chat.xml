@@ -2,8 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:title="Чаты"
+        android:titleTextColor="@android:color/white" />
 
     <!-- Поле для названия чата -->
     <EditText
@@ -11,7 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Название чата"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"/>
 
     <!-- Кнопка для добавления нового контакта -->
     <Button
@@ -20,7 +28,8 @@
         android:layout_height="wrap_content"
         android:text="Добавить новый контакт"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"/>
 
     <!-- Контейнер для прокручиваемого списка контактов -->
     <LinearLayout
@@ -29,8 +38,8 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:background="@android:color/white"
-        android:padding="8dp"
-        android:layout_marginBottom="300dp">
+        android:padding="22dp"
+        android:layout_marginBottom="30dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,5 +61,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Создать чат"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp"/>
 </LinearLayout>

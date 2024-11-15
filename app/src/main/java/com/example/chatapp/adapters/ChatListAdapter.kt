@@ -31,7 +31,6 @@ class ChatListAdapter(
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
         holder.bind(chat)
-        Log.i("as", "ASASQWQW $chat")
         holder.itemView.setOnClickListener {
             onChatClickListener.onChatClick(chat.id)
         }

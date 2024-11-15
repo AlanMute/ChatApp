@@ -5,12 +5,6 @@
     tools:ignore="ExtraText">
 
     <item
-        android:id="@+id/action_profile"
-        android:title="Профиль"
-        android:icon="@drawable/ic_person"
-    app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_settings"
         android:title="Настройки"
         android:icon="@drawable/ic_settings"
