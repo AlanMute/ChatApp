@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="30dp">
+
+    <!-- Название чата по центру -->
+    <TextView
+        android:id="@+id/textViewChatTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Название чата"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:paddingBottom="16dp" />
+
+    <!-- Информация о создателе -->
+    <TextView
+        android:id="@+id/textViewCreatorInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#555555"
+        android:paddingBottom="16dp" />
+
+    <!-- Заголовок "Участники" -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Участники:"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:paddingBottom="8dp" />
+
+    <!-- Список участников с разделением и скругленными углами -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMembers"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scrollbars="vertical"
+        android:paddingTop="5dp"
+        android:paddingBottom="2dp" />
+</LinearLayout>

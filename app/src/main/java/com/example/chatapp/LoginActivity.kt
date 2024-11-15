@@ -2,6 +2,7 @@ package com.example.chatapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -32,21 +33,26 @@ class LoginActivity : AppCompatActivity() {
             val password = editTextPassword.text.toString()
 
             if (login.isNotEmpty() && password.isNotEmpty()) {
-                val user = User(login, password)
+                val user = User(login, password, "")
                 RetrofitClient.getInstance(this).signIn(user).enqueue(object : Callback<AuthResponse> {
                     override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                         if (response.isSuccessful) {
                             val authResponse = response.body()
 
-                            // Извлекаем AccessToken и сохраняем его
                             val accessToken = authResponse?.token?.accessToken
-                            if (accessToken != null) {
-                                preferenceManager.saveToken(accessToken)
+                            val refreshToken = authResponse?.token?.refreshToken
+                            val userId = authResponse?.userId
+
+                            if (accessToken != null && refreshToken != null && userId != null) {
+                                preferenceManager.saveAccessToken(accessToken)
+                                preferenceManager.saveRefreshToken(refreshToken)
+                                preferenceManager.saveUserId(userId)
+
                                 Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                                 finish()
                             } else {
-                                Toast.makeText(this@LoginActivity, "Access token is missing in response", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@LoginActivity, "Required data is missing in response", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             Toast.makeText(this@LoginActivity, "Login failed!", Toast.LENGTH_SHORT).show()
@@ -60,6 +66,12 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please enter login and password", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        val buttonGoToRegister = findViewById<Button>(R.id.buttonGoToRegister)
+        buttonGoToRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+            finish()
         }
     }
 }

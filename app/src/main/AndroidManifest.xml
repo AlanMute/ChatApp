@@ -22,6 +22,15 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".MainActivity"/>
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".AddChatActivity"
+            tools:ignore="Instantiatable" />
+        <activity android:name=".ProfileActivity"
+            tools:ignore="Instantiatable" />
+        <activity android:name=".SettingsActivity"
+            tools:ignore="Instantiatable" />
+        <activity android:name=".ChatActivity"
+            tools:ignore="Instantiatable" />
     </application>
 
 </manifest>

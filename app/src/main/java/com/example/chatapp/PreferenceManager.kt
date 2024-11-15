@@ -7,15 +7,34 @@ class PreferenceManager(context: Context) {
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
-    fun saveToken(token: String) {
-        sharedPreferences.edit().putString("JWT_TOKEN", token).apply()
+    // Методы для сохранения данных
+    fun saveAccessToken(token: String) {
+        sharedPreferences.edit().putString("ACCESS_TOKEN", token).apply()
     }
 
-    fun getToken(): String? {
-        return sharedPreferences.getString("JWT_TOKEN", null)
+    fun saveRefreshToken(token: String) {
+        sharedPreferences.edit().putString("REFRESH_TOKEN", token).apply()
     }
 
-    fun clearToken() {
-        sharedPreferences.edit().remove("JWT_TOKEN").apply()
+    fun saveUserId(userId: Long) {
+        sharedPreferences.edit().putLong("USER_ID", userId).apply()
+    }
+
+    // Методы для получения данных
+    fun getAccessToken(): String? {
+        return sharedPreferences.getString("ACCESS_TOKEN", null)
+    }
+
+    fun getRefreshToken(): String? {
+        return sharedPreferences.getString("REFRESH_TOKEN", null)
+    }
+
+    fun getUserId(): Long {
+        return sharedPreferences.getLong("USER_ID", -1)
+    }
+
+    // Метод для очистки данных при выходе из аккаунта
+    fun clearData() {
+        sharedPreferences.edit().clear().apply()
     }
 }
