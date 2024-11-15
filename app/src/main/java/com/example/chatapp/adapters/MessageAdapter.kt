@@ -16,6 +16,11 @@ import java.util.TimeZone
 class MessageAdapter(private val messages: MutableList<MessageInfo>) :
     RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
+    fun addMessagesToStart(newMessages: List<MessageInfo>) {
+        messages.addAll(0, newMessages)
+        notifyItemRangeInserted(0, newMessages.size)
+    }
+
     fun addMessage(message: MessageInfo) {
         messages.add(message)
         notifyItemInserted(messages.size - 1)

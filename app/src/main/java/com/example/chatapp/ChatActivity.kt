@@ -29,6 +29,9 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ChatActivity : AppCompatActivity() {
+    private var currentPage = 0
+    private var isLoading = false
+    private var hasMorePages = true
     private lateinit var preferenceManager: PreferenceManager
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var webSocketClient: ChatWebSocketClient
@@ -60,9 +63,10 @@ class ChatActivity : AppCompatActivity() {
         messageAdapter = MessageAdapter(mutableListOf())
         recyclerViewMessages.adapter = messageAdapter
 
+        setupRecyclerViewPagination(recyclerViewMessages)
         loadChatInfo()
         loadChatMembers()
-        loadChatMessages()
+        loadChatMessages(0)
 
         setupWebSocket()
 
@@ -75,6 +79,19 @@ class ChatActivity : AppCompatActivity() {
                 editTextMessage.text.clear()
             }
         }
+    }
+
+    private fun setupRecyclerViewPagination(recyclerView: RecyclerView) {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                if (!isLoading && hasMorePages && layoutManager.findFirstVisibleItemPosition() == 0) {
+                    loadChatMessages(currentPage + 1)
+                }
+            }
+        })
     }
 
     private fun loadChatInfo() {
@@ -116,14 +133,20 @@ class ChatActivity : AppCompatActivity() {
         })
     }
 
-    private fun loadChatMessages() {
-        RetrofitClient.getInstance(this).getChatMessages(chatId).enqueue(object : Callback<List<MessageInfo>> {
+    private fun loadChatMessages(pageId: Int) {
+        if (isLoading || !hasMorePages) return
+
+        isLoading = true
+        RetrofitClient.getInstance(this).getChatMessages(chatId, pageId).enqueue(object : Callback<List<MessageInfo>> {
             override fun onResponse(call: Call<List<MessageInfo>>, response: Response<List<MessageInfo>>) {
+                isLoading = false
                 if (response.isSuccessful && response.body() != null) {
-                    response.body()?.let { messages ->
-                        messageAdapter.submitList(messages)
-                        val recyclerViewMessages = findViewById<RecyclerView>(R.id.recyclerViewMessages)
-                        recyclerViewMessages.scrollToPosition(messages.size - 1)
+                    val messages = response.body()!!
+                    if (messages.isEmpty()) {
+                        hasMorePages = false
+                    } else {
+                        messageAdapter.addMessagesToStart(messages)
+                        currentPage = pageId
                     }
                 } else {
                     Toast.makeText(this@ChatActivity, "Не удалось загрузить сообщения", Toast.LENGTH_SHORT).show()
@@ -131,10 +154,12 @@ class ChatActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<MessageInfo>>, t: Throwable) {
+                isLoading = false
                 Toast.makeText(this@ChatActivity, "Ошибка: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
 
     private fun loadOwnerInfo(ownerId: Int) {
         Log.i("OwnerId", "$ownerId")
